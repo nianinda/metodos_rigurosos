@@ -1,3 +1,4 @@
+%% file intervalo_adriano.py
 class Intervalo(object):
     def __init__(self, min, max=None):
         
@@ -6,6 +7,10 @@ class Intervalo(object):
         
         self.min = min
         self.max = max
+        
+        if min > max:
+            self.min=max
+            self.max=min
         
         
     def __repr__(self):
@@ -24,3 +29,6 @@ class Intervalo(object):
 
     def __add__(self, otro):
         return Intervalo(self.min+otro.min, self.max+otro.max)
+    def __sub__(self,otro):
+        return Intervalo(self.min-otro.max,self.max-otro.min)
+        
