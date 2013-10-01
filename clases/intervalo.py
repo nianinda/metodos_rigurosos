@@ -3,11 +3,21 @@
 =======
 # -*- coding: utf-8 -*- 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> ad4277c9cab06d3e08bbc293cfe711e1f4e84221
 =======
 from sympy import mpmath as mp
 >>>>>>> 2f406410e6f896525b10caceb0d14240be44dd46
+=======
+
+# from sympy import mpmath as mp
+# import numpy as np
+
+import numpy
+math = numpy    # NB!
+
+>>>>>>> c18000fc44c378e8a6baf71954a5efaab6b97843
 class Intervalo(object):
     """
     Se define la clase 'Intervalo', y los métodos para la aritmética básica de intervalos,
@@ -42,8 +52,13 @@ class Intervalo(object):
         # Esta función sirve con 'print'
         return "[{},{}]".format(self.lo,self.hi)
 
+    # def _repr_html_(self):
+    #     return "[{}, {}]".format(self.lo, self.hi)
+
     def _repr_html_(self):
-        return "[{}, {}]".format(self.lo, self.hi)
+        reprn = "[{}, {}]".format(self.lo, self.hi)
+        reprn = reprn.replace("inf", r"&infin;")
+        return reprn
     
     def _repr_latex_(self):
         return "$[{}, {}]$".format(self.lo, self.hi)
@@ -236,7 +251,7 @@ class Intervalo(object):
         Cacula la anchura
         """
 
-        return self.hi-self.lo
+        return abs(self.hi-self.lo)
         
     def abs(self):
         
@@ -285,18 +300,69 @@ class Intervalo(object):
     def hull(self, otro):
         return Intervalo(min(self.lo,otro.lo),max(self.hi,otro.hi))
 
-    #funciones elementales para intervalos
-      
-    def exp(self):
-    	"""
-    	Calcula la exponencial de un intervalo.
-    	"""
-	
-        return Intervalo(mp.exp(self.lo), mp.exp(self.hi))
+        # Aquí se definirán funciones sobre intervalos        
+        
+    def cos(self):
 
+        pi = math.pi
+
+        if self.width() >= 2*pi:
+            return Intervalo(-1, 1)
+                        
+        num, num2 = math.mod(self.lo, 2*pi), math.mod(self.hi, 2*pi)
+    
+        if num2 < num:
+            if num >= pi:
+                return Intervalo(min(math.cos(num), math.cos(num2)), 1.0)
+            
+            else: 
+                return Intervalo(-1.0, 1.0)
+
+        if num2>pi and num<pi:
+            return Intervalo(-1, max(math.cos(num), math.cos(num2)))
+    
+
+        num = math.cos(num)
+        num2 = math.cos(num2)
+
+        if num2 < num:
+            num, num2 = num2, num
+
+        return Intervalo(num, num2)
+
+                        
+    def sin(self):
+        return self.cos(self - math.pi/2)
+        
+        
+       
+    def restringir_dominio(self, dominio=None):
+        """
+        Función que restringe el dominio de un intervalo a valores no negativos.
+        Levanta un error si el intervalo es completamente negativo.
+        """
+
+        if dominio is None:
+            dominio = Intervalo(0, math.inf)
+
+        restringido = self & dominio
+
+        if restringido is None:
+            print """Advertencia: el intervalo {} tiene interseccion vacia 
+            con el dominio {}.""".format(self, dominio)
+
+            raise ArithmeticError
+            return None
+
+        if restringido != self:
+            print """Advertencia: el intervalo {} tiene interseccion no-vacia 
+            con el dominio {}; restringiendo""".format(self, dominio)
+
+        return restringido
 
 
     def log(self):
+<<<<<<< HEAD
     	"""
     	Calcula el logaritmo de un intervalo.
     	"""
@@ -317,3 +383,52 @@ class Intervalo(object):
                 % (Dom_restr.lo, Dom_restr.hi)
             return Intervalo(mp.log(Dom_restr.lo), mp.log(Dom_restr.hi))
 >>>>>>> 2f406410e6f896525b10caceb0d14240be44dd46
+=======
+        """
+        Calcula el logaritmo de un intervalo.
+        """
+        #try:
+        #   return Intervalo(math.log(self.lo), math.log(self.hi))
+
+        #except:
+
+        restringido = self.restringir_dominio()
+
+        return Intervalo(math.log(restringido.lo), math.log(restringido.hi))
+
+
+    def exp(self):
+        """
+        Calcula la exponencial de un intervalo.
+        """
+    
+        return Intervalo(math.exp(self.lo), math.exp(self.hi))
+
+
+
+        
+    def sqrt(self):
+
+        restringido = self.restringir_dominio()
+        return Intervalo(math.sqrt(restringido.lo),math.sqrt(restringido.hi))
+            
+    def arctan(self):
+        return Intervalo(math.arctan(self.lo),math.arctan(self.hi))
+
+    def tan(self):
+        
+        if self.width() < 2*(pi) and math.tan(self.lo) <= math.tan(self.hi):
+            return Intervalo(math.tan(self.lo), math.tan(self.hi))
+        else:
+            print 'Advertencia: El intervalo contiene una singularidad'
+            return Intervalo(float("-inf"), float("inf"))
+
+        #funciones elementales para intervalos
+      
+
+def cos(x):
+    try:
+        return x.cos()
+    except:
+        return math.cos(x)
+>>>>>>> c18000fc44c378e8a6baf71954a5efaab6b97843
